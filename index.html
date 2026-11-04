@@ -1,6 +1,3 @@
-// UNIVERSAL DOWNLOADER PRO - SINGLE FILE - 70 COUNTRY SUPPORT
-// File: lib/main.dart - এই একটা ফাইলেই সব!
-
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:dio/dio.dart';
@@ -10,7 +7,6 @@ import 'package:permission_handler/permission_handler.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Permission.storage.request();
-  await Permission.manageExternalStorage.request();
   runApp(const UniversalDownloaderApp());
 }
 
@@ -19,9 +15,7 @@ class UniversalDownloaderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Downloader Pro',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
       home: const SingleFileDownloader(),
     );
   }
@@ -34,56 +28,40 @@ class SingleFileDownloader extends StatefulWidget {
 }
 
 class _SingleFileDownloaderState extends State<SingleFileDownloader> {
-  final TextEditingController urlCtrl = TextEditingController();
-  InAppWebViewController? webCtrl;
+  final urlCtrl = TextEditingController();
   double progress = 0;
   bool isDownloading = false;
-  String status = "Ready to Download - Paste Link";
+  String status = "Ready";
 
-  // সব ফিচার একসাথে এই একটা ফাংশনে
   Future<void> downloadNow(String url) async {
     if (url.isEmpty) return;
-    setState(() { isDownloading = true; status = "Starting..."; });
+    setState(() { isDownloading = true; });
     try {
       var dir = await getExternalStorageDirectory();
-      String fileName = "VD_${DateTime.now().millisecondsSinceEpoch}.mp4";
-      String savePath = "${dir!.path}/$fileName";
-      await Dio().download(url, savePath, onReceiveProgress: (r, t) {
-        if (t != -1) setState(() { progress = r / t; status = "Downloading ${(progress*100).toStringAsFixed(0)}%"; });
-      });
-      setState(() { status = "✅ Saved: $fileName"; isDownloading = false; progress = 0; });
+      String savePath = "${dir!.path}/video.mp4";
+      await Dio().download(url, savePath,
+        onReceiveProgress: (r, t) {
+          setState(() { progress = r / t; });
+        });
+      setState(() { status = "Complete!"; isDownloading = false; });
     } catch (e) {
-      setState(() { status = "❌ Error: $e"; isDownloading = false; });
+      setState(() { status = "Error: $e"; isDownloading = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("ONE FILE DOWNLOADER - WORLD WIDE"), centerTitle: true),
+      appBar: AppBar(title: Text("ONE FILE DOWNLOADER")),
       body: Column(children: [
-        Padding(
-          padding: const EdgeInsets.all(10),
-          child: TextField(
-            controller: urlCtrl,
-            decoration: InputDecoration(
-              hintText: "Paste Link Here...",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              suffixIcon: IconButton(icon: const Icon(Icons.download_rounded), onPressed: () => downloadNow(urlCtrl.text)),
-            ),
-            onSubmitted: (v) => downloadNow(v),
-          ),
-        ),
+        TextField(controller: urlCtrl, onSubmitted: downloadNow),
         if (isDownloading) LinearProgressIndicator(value: progress),
-        Padding(padding: const EdgeInsets.all(6), child: Text(status, style: const TextStyle(fontWeight: FontWeight.bold))),
-        const Divider(height: 1),
-        Expanded(
-          child: InAppWebView(
-            initialUrlRequest: URLRequest(url: WebUri("https://www.facebook.com/")),
-            onWebViewCreated: (c) => webCtrl = c,
-          ),
-        ),
+        Text(status),
+        Expanded(child: InAppWebView(initialUrlRequest: URLRequest(url: WebUri("https://www.facebook.com/")))),
       ]),
     );
   }
-}
+}  dio: ^5.4.0
+  permission_handler: ^11.0.0
+  path_provider: ^2.1.1
+  flutter_inappwebview: ^6.0.0
