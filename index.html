@@ -1,116 +1,49 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>All Video Downloader - Viral</title>
+<!-- ===== ভাই ৩টা ডাউনলোড বাটন একসাথে - কপি করে বসান ===== -->
 <style>
-*{margin:0;padding:0;font-family:sans-serif}
-.header{background:#00c853;padding:15px;color:white;text-align:center}
-.searchBox{display:flex;margin:15px;background:#f1f1f1;border-radius:30px;overflow:hidden}
-.searchBox input{flex:1;padding:14px 20px;border:none;background:transparent;outline:none;font-size:16px}
-.searchBox button{padding:0 20px;background:transparent;border:none;font-size:20px}
-.icons{display:flex;justify-content:space-around;margin:20px 0}
-.icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;color:white}
-#results{padding:10px}
-.videoCard{display:flex;gap:10px;background:white;margin-bottom:12px;padding:10px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.videoCard img{width:140px;border-radius:8px}
-.qualityArea{display:none;margin-top:8px}
-.qbtn{padding:6px 12px;margin:3px;border:1px solid #00c853;border-radius:20px;background:white}
-.qbtn.active{background:#00c853;color:white}
-.downBtn{display:none;margin-top:8px;width:100%;padding:12px;background:#00c853;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold}
+  .dl-row { display:flex; gap:10px; margin-top:15px; }
+  .dl-btn { flex:1; background:#00c853; color:white; border:none; padding:14px 5px; border-radius:12px; font-size:15px; font-weight:bold; cursor:pointer; line-height:1.3; }
+  .dl-btn:active { background:#009624; }
+  .dl-btn small { display:block; font-size:12px; font-weight:normal; opacity:0.9; }
 </style>
-</head>
-<body>
-<div class="header"><h2>Browser SaveFrom - No Ads</h2><small>search for videos on the internet</small></div>
 
-<div class="searchBox">
-<input id="searchInput" type="text" placeholder="Insert your link or type web add...">
-<button onclick="handleSearch()">🔗 Paste</button>
+<div class="dl-row">
+  <button class="dl-btn" onclick="downloadVideo('360')">360p <small>⬇️ মেমোরিতে</small></button>
+  <button class="dl-btn" onclick="downloadVideo('720')">720p <small>⬇️ মেমোরিতে</small></button>
+  <button class="dl-btn" onclick="downloadVideo('1080')">1080p <small>⬇️ মেমোরিতে</small></button>
 </div>
 
-<div class="icons">
-<div class="icon" style="background:#ff0000">▶</div>
-<div class="icon" style="background:#1877f2">f</div>
-<div class="icon" style="background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)">📷</div>
-<div class="icon" style="background:black">X</div>
+<div class="dl-row" style="margin-top:10px;">
+  <button class="dl-btn" style="background:#ff3d00" onclick="downloadVideo('mp3')">🎵 MP3 Audio <small>⬇️ মেমোরিতে</small></button>
+  <button class="dl-btn" style="background:#2962ff" onclick="shareApp()">🚀 Share করে ভাইরাল করুন</button>
 </div>
-
-<div id="results"></div>
 
 <script>
-async function handleSearch(){
- let query = document.getElementById('searchInput').value.trim();
- if(!query){ alert('ভাই লিংক বা নাম লিখুন'); return; }
- 
- let results = document.getElementById('results');
- results.innerHTML = '<p>⏳ ভিডিও খুঁজছি...</p>';
+// ভাই এই ৩টা ফাংশন একসাথে কাজ করবে
+let videoLinks = {}; // API থেকে লিংক আসলে এখানে জমা হবে
 
- // যদি লিংক হয়, সরাসরি ডাউনলোড কার্ড দেখাও
- if(query.includes('http')){
-   showVideoCard(query, 'Your Video Ready', 'Direct Link');
- } else {
-   // যদি নাম লিখে সার্চ করে (ভাইরাল ফিচার)
-   results.innerHTML = `<p>🔍 "${query}" এর জন্য YouTube এ সার্চ হচ্ছে...</p>
-   <p style="font-size:13px;color:gray">ভাই এখন টাইপ করে সার্চ করলেও হবে, লিংক লাগবে না!</p>`;
-   // এখানে YouTube Search API লাগানো যাবে
-   setTimeout(()=> showVideoCard('https://youtube.com/watch?v='+query, query, 'Search Result'), 1000);
- }
+function downloadVideo(quality) {
+  const url = videoLinks[quality];
+  if(!url) { alert('ভাই আগে ভিডিও লিংক পেস্ট করে Search দিন!'); return; }
+  
+  // সরাসরি মেমোরিতে ডাউনলোড
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `video-${quality}.mp4`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
-function showVideoCard(url, title, channel){
- let results = document.getElementById('results');
- results.innerHTML = `
- <div class="videoCard">
-   <img src="https://img.youtube.com/vi/${getId(url)}/mqdefault.jpg" onerror="this.src='https://via.placeholder.com/140x80?text=Video'">
-   <div style="flex:1">
-     <b>${title.slice(0,50)}</b><br><small>${channel}</small>
-     <div class="qualityArea" id="qArea" style="display:block">
-       <button class="qbtn" onclick="selectQ(this,'360p','${url}')">360p</button>
-       <button class="qbtn" onclick="selectQ(this,'720p','${url}')">720p</button>
-       <button class="qbtn" onclick="selectQ(this,'1080p','${url}')">1080p</button>
-       <button class="qbtn" onclick="selectQ(this,'MP3','${url}')">MP3</button>
-     </div>
-     <button class="downBtn" id="finalBtn" onclick="directDownload()">⬇️ Download</button>
-   </div>
- </div>
- <p style="text-align:center;margin-top:20px"><button onclick="shareApp()" style="padding:10px 20px;border-radius:20px;border:1px solid #00c853;background:white">📤 Share করে ভাইরাল করুন</button></p>
- `;
+function shareApp() {
+  if(navigator.share){
+    navigator.share({title:'All Video Downloader', text:'এই অ্যাপ দিয়ে ১ চাপে ভিডিও মেমোরিতে নামে! 🔥', url: window.location.href});
+  } else {
+    prompt('লিংক কপি করে শেয়ার করুন:', window.location.href);
+  }
 }
 
-let selectedUrl = '';
-function selectQ(btn, quality, url){
- document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');
- selectedUrl = url;
- let finalBtn = document.getElementById('finalBtn');
- finalBtn.style.display='block';
- finalBtn.innerText = `⬇️ ${quality} Download - সরাসরি মেমোরিতে`;
-}
-
-function directDownload(){
- if(!selectedUrl) return;
- // এই লিংকটা Android অ্যাপে সরাসরি ডাউনলোড ম্যানেজারে যাবে, অন্য পেজে যাবে না
- // GitHub Pages এ cobalt API কল
- fetch('https://api.cobalt.tools/api/json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:selectedUrl})})
- .then(r=>r.json()).then(d=>{
-   if(d.url){ window.location.href = d.url; } // সরাসরি ডাউনলোড শুরু
-   else{ alert('✅ ডাউনলোড শুরু হলো! My files এ দেখুন'); }
- });
-}
-
-function getId(url){ 
- let m = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); 
- return m?m[1]:'dQw4w9WgXcQ'; 
-}
-
-function shareApp(){
- if(navigator.share){
-   navigator.share({title:'All Video Downloader',text:'এক চাপে ভিডিও ডাউনলোড - কোনো বিজ্ঞাপন নেই!',url:window.location.href});
- } else {
-   alert('লিংক কপি করে WhatsApp এ শেয়ার করুন - এটাই ভাইরাল হবে!');
- }
-}
+// উদাহরণ: API থেকে লিংক পেলে এইভাবে সেট করবেন
+// videoLinks = { '360': 'https://...360.mp4', '720': 'https://...720.mp4', '1080': 'https://...1080.mp4', 'mp3': 'https://...mp3' };
 </script>
-</body>
-</html>
+<!-- ===== শেষ ===== -->
